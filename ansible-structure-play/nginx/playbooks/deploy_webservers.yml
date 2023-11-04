@@ -1,0 +1,28 @@
+---
+- name: Deploy Nginx Web Servers with Custom Configuration
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Install Nginx
+      dnf:
+        name: nginx
+        state: present
+
+    - name: Deploy custom Nginx site configuration
+      template:
+        src: templates/custom_nginx_site.conf.j2
+        dest: /etc/nginx/conf.d/custom_site.conf
+      vars:
+        server_name: "example.com"  # Customize the domain name as needed
+
+    - name: Deploy custom index.html
+      copy:
+        src: files/custom_index.html
+        dest: /usr/share/nginx/html/index.html
+
+    - name: Start Nginx and enable on boot
+      service:
+        name: nginx
+        state: started
+        enabled: yes
