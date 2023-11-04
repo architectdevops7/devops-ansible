@@ -1,0 +1,38 @@
+---
+- name: Install MySQL
+  hosts: db_server
+  become: yes
+
+  tasks:
+    - name: Install MySQL Server
+      dnf:
+        name: mysql-server
+        state: present
+
+    - name: Start and enable MySQL
+      service:
+        name: mysqld
+        state: started
+        enabled: yes
+
+    - name: Include MySQL login credentials
+      include_vars:
+        file: vault/secrets.yml
+      no_log: true  # Prevent password from being displayed in logs
+
+    - name: Create a MySQL user
+      mysql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+        priv: '*.*:ALL'
+        state: present
+        host: localhost
+
+    - name: Create a MySQL database
+      mysql_db:
+        name: my_database
+        state: present
+        collation: utf8_general_ci
+        encoding: utf8
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
