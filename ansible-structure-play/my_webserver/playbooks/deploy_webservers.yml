@@ -1,0 +1,5 @@
+---
+- name: Deploy Web Servers
+  hosts: webservers
+  roles:
+    - apache
