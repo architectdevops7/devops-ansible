@@ -4,20 +4,29 @@
   become: yes
 
   tasks:
-    - name: Install MariaDB Server
+    - name: Install Database
       yum:
         name: mariadb-server
         state: present
-
-    - name: Start and enable MariaDB
+    
+    - name: Start & Enable DB
       service:
         name: mariadb
         state: started
-        enabled: yes
 
-    - name: Include MariaDB login credentials
+    - name: Include the mariadb login credentials
       include_vars:
-        file: /opt/ansible-vault/devops-ansible/ansible-vault/ansible-mysql/vault/secrets.yml
+        file: /home/ec2-user/ansible-vault/vault/secrets.yml
+
+    - name: Install pip
+      yum:
+        name: python2-pip
+        state: present
+
+    - name: Install PyMySQL
+      pip:
+        name: pymysql
+        state: present
 
     - name: Create a MariaDB user
       mysql_user:
@@ -26,12 +35,3 @@
         priv: '*.*:ALL'
         state: present
         host: localhost
-
-    - name: Create a MariaDB database
-      mysql_db:
-        name: my_database
-        state: present
-        collation: utf8_general_ci
-        encoding: utf8
-        login_user: "{{ db_user }}"
-        login_password: "{{ db_password }}"
