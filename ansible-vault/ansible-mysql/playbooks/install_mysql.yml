@@ -1,26 +1,25 @@
 ---
-- name: Install MySQL
-  hosts: db_server
+- name: Install MariaDB
+  hosts: dbservers
   become: yes
 
   tasks:
-    - name: Install MySQL Server
-      dnf:
-        name: mysql-server
+    - name: Install MariaDB Server
+      yum:
+        name: mariadb-server
         state: present
 
-    - name: Start and enable MySQL
+    - name: Start and enable MariaDB
       service:
-        name: mysqld
+        name: mariadb
         state: started
         enabled: yes
 
-    - name: Include MySQL login credentials
+    - name: Include MariaDB login credentials
       include_vars:
-        file: vault/secrets.yml
-      no_log: true  # Prevent password from being displayed in logs
+        file: /opt/ansible-vault/devops-ansible/ansible-vault/ansible-mysql/vault/secrets.yml
 
-    - name: Create a MySQL user
+    - name: Create a MariaDB user
       mysql_user:
         name: "{{ db_user }}"
         password: "{{ db_password }}"
@@ -28,7 +27,7 @@
         state: present
         host: localhost
 
-    - name: Create a MySQL database
+    - name: Create a MariaDB database
       mysql_db:
         name: my_database
         state: present
